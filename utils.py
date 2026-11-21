@@ -62,7 +62,11 @@ def normalize_hero_name(hero):
 
 
 def sigmoid(x):
-    return 1 / (1 + math.exp(-x))
+    # Forma estavel: para x < 0 usa exp(x), que vai para 0 em vez de estourar.
+    if x >= 0:
+        return 1 / (1 + math.exp(-x))
+    e = math.exp(x)
+    return e / (1 + e)
 
 
 def _team_key_raw(name):
