@@ -1,5 +1,7 @@
 # Dota Draft Preditor
 
+[![tests](https://github.com/gugamorato-svg/dota-draft-preditor/actions/workflows/tests.yml/badge.svg)](https://github.com/gugamorato-svg/dota-draft-preditor/actions/workflows/tests.yml)
+
 Prevê o vencedor de partidas **profissionais de Dota 2 a partir do draft**: monte os picks de Radiant e Dire (ou carregue uma partida pelo ID do OpenDota) e veja a chance de vitória de cada lado, com o peso de cada fator na previsão.
 
 > *English summary:* predicts the winner of pro Dota 2 matches from the draft. Pick heroes for Radiant and Dire (or load a match by its OpenDota ID) and get each side's win probability, with a breakdown of what drove it. Python + Streamlit, data from OpenDota and STRATZ. Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
