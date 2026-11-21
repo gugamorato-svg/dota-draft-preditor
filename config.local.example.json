@@ -1,0 +1,6 @@
+{
+  "_leia": "Copie para config.local.json. Todas as chaves sao opcionais: sem elas a coleta usa os limites gratuitos das APIs.",
+  "opendota_api_key": "",
+  "steam_api_key": "",
+  "stratz_api_key": ""
+}

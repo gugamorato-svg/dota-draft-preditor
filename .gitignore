@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Dados coletados e pesos treinados (cada pessoa gera os seus)
+*.csv
+!hero_id_map.csv
+!team_aliases.csv
+!player_roles.csv
+!liquipedia_roles.csv
+!model_coefficients.example.csv
+!tier1_leagues.example.csv
+*.cache.json
+*.log
+.cache/
+
+# Chaves
+config.local.json
+.env
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,16 @@
+feature,coefficient
+intercept,0.0
+hero_meta_diff,0.10
+player_comfort_diff,0.10
+role_fit_diff,0.0
+draft_balance_diff,0.10
+lane_matchup_diff,0.10
+synergy_diff,0.10
+counter_diff,0.10
+pre_match_block,0.0
+patch_meta_diff,0.10
+rating_diff,0.10
+player_form_diff,0.10
+recent_form_diff,0.10
+head_to_head_diff,0.10
+layoff_diff,0.10
