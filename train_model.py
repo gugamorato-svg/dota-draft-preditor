@@ -46,7 +46,11 @@ def as_float(value, default=0.0):
 
 
 def sigmoid(value):
-    return 1 / (1 + math.exp(-value))
+    # Forma estavel: para value < 0 usa exp(value), que vai para 0 em vez de estourar.
+    if value >= 0:
+        return 1 / (1 + math.exp(-value))
+    e = math.exp(value)
+    return e / (1 + e)
 
 
 def train_logistic_regression(features, labels, epochs=4500, learning_rate=0.02, l2=0.12):
