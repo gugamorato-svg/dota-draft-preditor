@@ -4,6 +4,10 @@
 
 Prevê o vencedor de partidas **profissionais de Dota 2 a partir do draft**: monte os picks de Radiant e Dire (ou carregue uma partida pelo ID do OpenDota) e veja a chance de vitória de cada lado, com o peso de cada fator na previsão.
 
+![Dota Draft Preditor com Team Spirit vs PARIVISION carregada pelo Match ID](docs/preditor.png)
+
+*Team Spirit vs PARIVISION carregada pelo Match ID: chance de vitória de cada lado e o peso de cada fator.*
+
 > *English summary:* predicts the winner of pro Dota 2 matches from the draft. Pick heroes for Radiant and Dire (or load a match by its OpenDota ID) and get each side's win probability, with a breakdown of what drove it. Python + Streamlit, data from OpenDota and STRATZ. Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## O que entra na previsão
@@ -33,6 +37,8 @@ streamlit run app.py
 ```
 
 O app já abre sem dados, com pesos de **exemplo** (não calibrados): serve para explorar a interface. Para previsões de verdade, colete os dados e treine o modelo.
+
+Para abrir uma partida direto, use o Match ID na URL: `http://localhost:8501/?match_id=9095760627`. O link carregado pelo botão também fica na barra de endereço, para compartilhar.
 
 ### Coletar dados e treinar
 

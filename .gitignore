@@ -27,3 +27,5 @@ config.local.json
 # Sistema
 .DS_Store
 Thumbs.db
+model_report.txt
+opendota_usage.json

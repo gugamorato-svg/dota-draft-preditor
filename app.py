@@ -158,6 +158,17 @@ def main():
     if missing:
         st.info("Sem dados coletados ainda: " + ", ".join(missing) + ". As features ligadas a eles ficam em zero.")
 
+    # Um link com ?match_id=... abre a partida direto, para compartilhar uma previsao.
+    linked_id = str(st.query_params.get("match_id", "")).strip()
+    if linked_id.isdigit() and st.session_state.get("linked_match_id") != linked_id:
+        st.session_state["linked_match_id"] = linked_id
+        try:
+            match = match_from_opendota(linked_id, heroes_by_id)
+            apply_loaded_match(match)
+            st.session_state["loaded_result"] = match["radiant_win"]
+        except Exception as error:  # rede, rate limit ou partida sem draft
+            st.error(f"Nao consegui carregar a partida {linked_id}: {error}")
+
     with st.expander("Carregar uma partida do OpenDota"):
         col_id, col_button = st.columns([3, 1])
         with col_id:
@@ -169,6 +180,8 @@ def main():
                     match = match_from_opendota(match_id.strip(), heroes_by_id)
                     apply_loaded_match(match)
                     st.session_state["loaded_result"] = match["radiant_win"]
+                    st.session_state["linked_match_id"] = match_id.strip()
+                    st.query_params["match_id"] = match_id.strip()
                     st.rerun()
                 except Exception as error:  # rede, rate limit ou partida sem draft
                     st.error(f"Nao consegui carregar: {error}")
