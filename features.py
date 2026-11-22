@@ -54,46 +54,55 @@ FEATURE_DESCRIPTIONS = {
         "fonte": "hero_stats.csv",
         "updater": "update_hero_stats.py",
         "descricao": "Diferenca de meta dos 5 picks usando patch WR, immortal WR, pro WR, contest rate e comfort do heroi.",
+        "descricao_en": "Meta difference of the 5 picks using patch WR, immortal WR, pro WR, contest rate and hero comfort.",
     },
     "player_comfort_diff": {
         "fonte": "player_hero_external.csv + player_hero_stats.csv + player_hero_team_stats.csv",
         "updater": "update_player_hero_year_stats.py / update_player_hero_stats.py",
         "descricao": "Diferenca de comfort especifico dos jogadores nos herois escolhidos, com reducao por amostra pequena.",
+        "descricao_en": "Difference in player-specific comfort on the chosen heroes, with shrinkage for small samples.",
     },
     "role_fit_diff": {
         "fonte": "player_roles.csv + tags dos herois",
         "updater": "update_player_roles.py",
         "descricao": "Diferenca de encaixe entre funcao do player e arquetipo do heroi.",
+        "descricao_en": "Difference in fit between each player's role and the hero archetype.",
     },
     "draft_balance_diff": {
         "fonte": "tags dos herois",
         "updater": "manual no features.py",
         "descricao": "Diferenca de equilibrio do draft: controle, teamfight, catch, push, Roshan, save e scaling.",
+        "descricao_en": "Difference in draft balance: control, teamfight, catch, push, Roshan, save and scaling.",
     },
     "lane_matchup_diff": {
         "fonte": "player_roles.csv + counters temporais + hero_stats.csv",
         "updater": "update_player_roles.py / pro_matches.csv",
         "descricao": "Diferenca estimada das lanes usando role dos players e counters temporais com prior externo fraco.",
+        "descricao_en": "Estimated lane difference using player roles and temporal counters with a weak external prior.",
     },
     "synergy_diff": {
         "fonte": "historico temporal + learned_synergies_stratz.csv fraco",
         "updater": "pro_matches.csv / update_synergies.py",
         "descricao": "Diferenca de sinergias entre pares de herois do mesmo time usando apenas partidas anteriores e prior externo reduzido.",
+        "descricao_en": "Difference in synergy between hero pairs on the same team, using only earlier matches and a reduced external prior.",
     },
     "counter_diff": {
         "fonte": "historico temporal + OpenDota/Stratz fraco",
         "updater": "pro_matches.csv / update_matchups.py",
         "descricao": "Diferenca de counters hero vs hero usando apenas partidas anteriores, com prior externo reduzido e smoothing por amostra.",
+        "descricao_en": "Difference in hero-vs-hero counters using only earlier matches, with a reduced external prior and per-sample smoothing.",
     },
     "pre_match_block": {
         "fonte": "team_ratings.csv + head_to_head.csv + team_form.csv + player_form.csv",
         "updater": "update_team_ratings.py / update_head_to_head.py / update_team_form.py / update_player_form.py",
         "descricao": "Bloco pre-match unico: rating, confronto direto, forma do time e forma dos jogadores, capado em +/-3pp para nao travar underdogs com draft bom.",
+        "descricao_en": "Single pre-match block: rating, head-to-head, team form and player form, capped at +/-3pp so a good draft can still lift underdogs.",
     },
     "patch_meta_diff": {
         "fonte": "patch_meta.csv (fallback: hero_stats.csv)",
         "updater": "update_patch_meta.py",
         "descricao": "Diferenca de qualidade dos herois no patch atual usando score derivado de winrate publico + immortal.",
+        "descricao_en": "Difference in hero quality on the current patch using a score derived from public + immortal win rate.",
     },
     # Adicionadas em 31/05/26: antes embolavam dentro do pre_match_block (cap +/-3pp).
     # Hoje pre_match_block=0 e estas 4 tem coef proprio no model_coefficients.csv.
@@ -101,21 +110,33 @@ FEATURE_DESCRIPTIONS = {
         "fonte": "team_ratings.csv",
         "updater": "update_team_ratings.py",
         "descricao": "Diferenca de rating do time (Elo OpenDota), normalizada e capada em +/- 1.5.",
+        "descricao_en": "Difference in team rating (OpenDota Elo), normalized and capped at +/-1.5.",
     },
     "player_form_diff": {
         "fonte": "player_form.csv",
         "updater": "update_player_form.py",
         "descricao": "Diferenca de winrate recente dos jogadores escalados (janela ~30 partidas), pesada por confianca.",
+        "descricao_en": "Difference in recent win rate of the players in the lineup (~30-match window), weighted by confidence.",
     },
     "recent_form_diff": {
         "fonte": "team_form.csv",
         "updater": "update_team_form.py",
         "descricao": "Diferenca de winrate recente do time (janela ~10 partidas), com Bayesian smoothing (prior 50%/5 jogos).",
+        "descricao_en": "Difference in recent team win rate (~10-match window), with Bayesian smoothing (50%/5-game prior).",
     },
     "head_to_head_diff": {
         "fonte": "head_to_head.csv",
         "updater": "update_head_to_head.py",
         "descricao": "Diferenca de winrate em confrontos diretos entre os dois times. Coef=0 hoje (suspeita de vies por times repetidos).",
+        "descricao_en": "Difference in win rate in direct matchups between the two teams. Coef=0 today (suspected bias from repeated teams).",
+    },
+    # Adicionado 05/07: dias-parado (radiant-dire). Time descansado overperforma o modelo
+    # (adaptacao entre torneios). Ver _layoff_diff_value.
+    "layoff_diff": {
+        "fonte": "contexto temporal (_team_last_match)",
+        "updater": "temporal_context.py / pro_matches.csv",
+        "descricao": "Diferenca de dias sem jogar entre os times (radiant - dire), normalizada e capada em +/-2.",
+        "descricao_en": "Difference in days off between the teams (radiant - dire), normalized and capped at +/-2.",
     },
 }
 

@@ -11,6 +11,7 @@ import pandas as pd
 import streamlit as st
 
 import features as model_features
+from i18n import DEFAULT_LANG, LANGUAGE_LABELS, t
 from utils import normalize_hero_name, opendota_get_json
 
 BASE_DIR = Path(__file__).parent
@@ -30,7 +31,7 @@ DATA_FILES = [
 ]
 SLOTS = 5
 
-st.set_page_config(page_title="Dota Draft Preditor", layout="wide")
+st.set_page_config(page_title=t("page_title", st.session_state.get("lang", DEFAULT_LANG)), layout="wide")
 
 
 @st.cache_data
@@ -65,11 +66,11 @@ def load_context():
     return model_features.load_feature_context(BASE_DIR)
 
 
-def match_from_opendota(match_id, heroes_by_id):
+def match_from_opendota(match_id, heroes_by_id, lang=DEFAULT_LANG):
     """Picks, bans, times e jogadores de uma partida do OpenDota."""
     data = opendota_get_json(f"/matches/{int(match_id)}")
     if not isinstance(data, dict) or "picks_bans" not in data:
-        raise ValueError("partida nao encontrada ou sem draft no OpenDota")
+        raise ValueError(t("match_not_found", lang))
 
     draft = {"radiant": {"picks": [], "bans": []}, "dire": {"picks": [], "bans": []}}
     for entry in data.get("picks_bans") or []:
@@ -108,92 +109,104 @@ def apply_loaded_match(match):
         st.session_state[f"{side}_bans"] = match["draft"][side]["bans"]
 
 
-def side_inputs(side, label, hero_options):
+def side_inputs(side, label, hero_options, lang):
     st.subheader(label)
-    st.text_input("Time", key=f"{side}_team", placeholder="opcional")
+    st.text_input(t("label_team", lang), key=f"{side}_team", placeholder=t("placeholder_optional", lang))
     picks, players = [], []
     for i in range(SLOTS):
         col_hero, col_player = st.columns([3, 2])
         with col_hero:
-            hero = st.selectbox(f"Pick {i + 1}", [""] + hero_options, key=f"{side}_pick_{i}")
+            hero = st.selectbox(t("label_pick", lang, n=i + 1), [""] + hero_options, key=f"{side}_pick_{i}")
         with col_player:
-            player = st.text_input(f"Jogador {i + 1}", key=f"{side}_player_{i}", placeholder="opcional")
+            player = st.text_input(
+                t("label_player", lang, n=i + 1),
+                key=f"{side}_player_{i}",
+                placeholder=t("placeholder_optional", lang),
+            )
         if hero:
             picks.append(hero)
             players.append(player.strip())
-    bans = st.multiselect("Bans", hero_options, key=f"{side}_bans")
+    bans = st.multiselect(t("label_bans", lang), hero_options, key=f"{side}_bans")
     return picks, players, bans
 
 
-def feature_table(feature_dict, model):
+def feature_table(feature_dict, model, lang):
     rows = []
+    contribution_key = t("col_contribution", lang)
     for name in model_features.FEATURE_NAMES:
         value = feature_dict.get(name, 0.0)
         coef = model.get(name, 0.0)
         info = model_features.FEATURE_DESCRIPTIONS.get(name, {})
+        description = info.get("descricao_en" if lang == "en" else "descricao") or info.get("descricao", "")
         rows.append({
             "feature": name,
-            "valor (Radiant - Dire)": round(value, 3),
-            "peso": round(coef, 3),
-            "contribuicao": round(value * coef, 3),
-            "o que mede": info.get("descricao", ""),
+            t("col_value", lang): round(value, 3),
+            t("col_weight", lang): round(coef, 3),
+            contribution_key: round(value * coef, 3),
+            t("col_what_it_measures", lang): description,
         })
-    return pd.DataFrame(rows).sort_values("contribuicao", key=abs, ascending=False)
+    return pd.DataFrame(rows).sort_values(contribution_key, key=abs, ascending=False)
 
 
 def main():
+    lang = st.session_state.get("lang", DEFAULT_LANG)
+    with st.sidebar:
+        st.selectbox(
+            t("language_label", lang),
+            options=list(LANGUAGE_LABELS),
+            format_func=LANGUAGE_LABELS.__getitem__,
+            key="lang",
+        )
+
     heroes_by_id, hero_options = load_heroes()
     model, trained = load_model()
     context = load_context()
 
-    st.title("Dota Draft Preditor")
-    st.caption("Chance de vitoria de Radiant e Dire a partir do draft, dos times e dos jogadores.")
+    st.title(t("title", lang))
+    st.caption(t("caption", lang))
 
     missing = [name for name in DATA_FILES if not (BASE_DIR / name).exists()]
     if not trained:
-        st.warning(
-            "Usando pesos de **exemplo**, nao calibrados. Rode a coleta e `python train_model.py` "
-            "para treinar os seus (veja o README)."
-        )
+        st.warning(t("warning_example_model", lang))
     if missing:
-        st.info("Sem dados coletados ainda: " + ", ".join(missing) + ". As features ligadas a eles ficam em zero.")
+        st.info(t("info_missing_data", lang, files=", ".join(missing)))
 
     # Um link com ?match_id=... abre a partida direto, para compartilhar uma previsao.
     linked_id = str(st.query_params.get("match_id", "")).strip()
     if linked_id.isdigit() and st.session_state.get("linked_match_id") != linked_id:
         st.session_state["linked_match_id"] = linked_id
         try:
-            match = match_from_opendota(linked_id, heroes_by_id)
+            match = match_from_opendota(linked_id, heroes_by_id, lang)
             apply_loaded_match(match)
             st.session_state["loaded_result"] = match["radiant_win"]
         except Exception as error:  # rede, rate limit ou partida sem draft
-            st.error(f"Nao consegui carregar a partida {linked_id}: {error}")
+            st.error(t("error_load_match", lang, match_id=linked_id, error=error))
 
-    with st.expander("Carregar uma partida do OpenDota"):
+    with st.expander(t("expander_load_match", lang)):
         col_id, col_button = st.columns([3, 1])
         with col_id:
-            match_id = st.text_input("Match ID", placeholder="ex.: 8123456789")
+            match_id = st.text_input(t("label_match_id", lang), placeholder=t("placeholder_match_id", lang))
         with col_button:
             st.write("")
-            if st.button("Carregar") and match_id.strip().isdigit():
+            if st.button(t("button_load", lang)) and match_id.strip().isdigit():
                 try:
-                    match = match_from_opendota(match_id.strip(), heroes_by_id)
+                    match = match_from_opendota(match_id.strip(), heroes_by_id, lang)
                     apply_loaded_match(match)
                     st.session_state["loaded_result"] = match["radiant_win"]
                     st.session_state["linked_match_id"] = match_id.strip()
                     st.query_params["match_id"] = match_id.strip()
                     st.rerun()
                 except Exception as error:  # rede, rate limit ou partida sem draft
-                    st.error(f"Nao consegui carregar: {error}")
+                    st.error(t("error_load_match_short", lang, error=error))
 
     col_radiant, col_dire = st.columns(2)
     with col_radiant:
-        radiant_picks, radiant_players, radiant_bans = side_inputs("radiant", "Radiant", hero_options)
+        radiant_picks, radiant_players, radiant_bans = side_inputs("radiant", "Radiant", hero_options, lang)
     with col_dire:
-        dire_picks, dire_players, dire_bans = side_inputs("dire", "Dire", hero_options)
+        dire_picks, dire_players, dire_bans = side_inputs("dire", "Dire", hero_options, lang)
 
     if not radiant_picks and not dire_picks:
-        st.info("Escolha os herois de cada lado para ver a previsao.")
+        st.info(t("info_choose_heroes", lang))
         return
 
     feature_dict = model_features.build_feature_dict(
@@ -217,13 +230,18 @@ def main():
 
     loaded_result = st.session_state.get("loaded_result")
     if loaded_result is not None:
-        st.caption(f"Resultado real da partida carregada: {'Radiant' if loaded_result else 'Dire'} venceu.")
+        winner = "Radiant" if loaded_result else "Dire"
+        st.caption(t("caption_real_result", lang, winner=winner))
 
-    st.subheader("O que pesou na previsao")
-    st.dataframe(feature_table(feature_dict, model), hide_index=True, use_container_width=True)
+    st.subheader(t("subtitle_what_weighed", lang))
+    st.dataframe(feature_table(feature_dict, model, lang), hide_index=True, use_container_width=True)
     st.caption(
-        f"A probabilidade fica limitada entre {model_features.MODEL_PROBABILITY_FLOOR:.0f}% e "
-        f"{model_features.MODEL_PROBABILITY_CEILING:.0f}%. Ferramenta de estudo: nao trate a previsao como garantia."
+        t(
+            "caption_probability_range",
+            lang,
+            floor=model_features.MODEL_PROBABILITY_FLOOR,
+            ceiling=model_features.MODEL_PROBABILITY_CEILING,
+        )
     )
 
 
