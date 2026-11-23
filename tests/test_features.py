@@ -46,3 +46,12 @@ def test_probability_stays_inside_the_floor_and_ceiling():
 def test_zero_features_and_zero_intercept_give_fifty_percent():
     zeros = {name: 0.0 for name in model_features.FEATURE_NAMES}
     assert model_features.predict_probability({"intercept": 0.0}, zeros) == pytest.approx(50.0)
+
+
+def test_every_feature_has_pt_and_en_descriptions():
+    for name in model_features.FEATURE_NAMES:
+        assert name in model_features.FEATURE_DESCRIPTIONS, name
+        details = model_features.FEATURE_DESCRIPTIONS[name]
+        assert details["descricao"].strip(), name
+        assert details["descricao_en"].strip(), name
+
